@@ -7,7 +7,7 @@ import Footer from './components/UI/Footer';
 function App() {
   return (
     <AuthProvider>
-      <AlertProvider>
+      <AlertProvider> {/* Добавьте эту обертку */}
         <Navbar />
         <div className="container mt-4">
           <AppRoutes />

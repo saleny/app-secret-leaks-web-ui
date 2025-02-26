@@ -8,27 +8,23 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const loadUser = async () => {
       try {
-        const response = await api.get('/users/me');
-        setUser(response.data);
+        const token = localStorage.getItem('token');
+        if (token) {
+          const { data } = await api.get('/users/me');
+          setUser(data);
+        }
       } catch (error) {
-        setUser(null);
+        console.error('Auth check error:', error);
+        localStorage.removeItem('token');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-    checkAuth();
-  }, []);
 
-  const login = async (username, password) => {
-    const response = await api.post('/auth/token', `username=${username}&password=${password}`, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    localStorage.setItem('token', response.data.access_token);
-    setUser({ username });
-  };
+    loadUser();
+  }, []);
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -36,7 +32,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{
+      user,
+      loading,
+      setUser,
+      logout
+    }}>
       {children}
     </AuthContext.Provider>
   );

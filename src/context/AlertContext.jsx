@@ -6,23 +6,23 @@ const AlertContext = createContext();
 export const AlertProvider = ({ children }) => {
   const [alerts, setAlerts] = useState([]);
 
-  const addAlert = (message, type = 'info', timeout = 5000) => {
+  const showAlert = (message, variant = 'primary') => {
     const id = Date.now();
-    setAlerts(prev => [...prev, { id, message, type }]);
+    setAlerts(prev => [...prev, { id, message, variant }]);
 
     setTimeout(() => {
       setAlerts(prev => prev.filter(alert => alert.id !== id));
-    }, timeout);
+    }, 5000);
   };
 
   return (
-    <AlertContext.Provider value={{ addAlert }}>
+    <AlertContext.Provider value={{ showAlert }}>
       {children}
       <div className="alert-container">
         {alerts.map(alert => (
           <Alert
             key={alert.id}
-            variant={alert.type}
+            variant={alert.variant}
             dismissible
             onClose={() => setAlerts(prev => prev.filter(a => a.id !== alert.id))}
           >

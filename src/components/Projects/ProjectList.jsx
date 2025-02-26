@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Spinner, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Alert } from 'react-bootstrap';
+import { useAlert } from '../../context/AlertContext'; // Добавьте этот импорт
 import ProjectCard from './ProjectCard';
 import { getProjects } from '../../services/projects';
-import { useAuth } from '../../context/AuthContext';
-import { useAlert } from '../../context/AlertContext';
 import Loader from '../UI/Loader';
 
 const ProjectList = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const { user } = useAuth();
-  const { showAlert } = useAlert();
+  const [error, setError] = useState('');
+  const { showAlert } = useAlert(); // Получаем функцию из контекста
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -20,40 +18,26 @@ const ProjectList = () => {
         setProjects(data);
       } catch (err) {
         setError(err.message);
-        showAlert('Failed to load projects', 'danger');
+        showAlert('Failed to load projects', 'danger'); // Правильное использование
       } finally {
         setLoading(false);
       }
     };
 
-    if (user) {
-      fetchProjects();
-    }
-  }, [user, showAlert]);
+    fetchProjects();
+  }, [showAlert]); // Добавляем зависимость
 
   if (loading) return <Loader />;
 
-  if (error) {
-    return (
-      <Container className="mt-4">
-        <Alert variant="danger">{error}</Alert>
-      </Container>
-    );
-  }
-
   return (
     <Container className="mt-4">
+      {error && <Alert variant="danger">{error}</Alert>}
       <Row className="g-4">
         {projects.map(project => (
           <Col key={project.id} xs={12} md={6} lg={4}>
             <ProjectCard project={project} />
           </Col>
         ))}
-        {projects.length === 0 && (
-          <Col>
-            <Alert variant="info">No projects found. Create your first project!</Alert>
-          </Col>
-        )}
       </Row>
     </Container>
   );
