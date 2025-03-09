@@ -34,3 +34,13 @@ export const getProjectScans = async (projectId) => {
   const response = await api.get(`/projects/${projectId}/scans`);
   return response.data;
 };
+
+export const deleteProject = async (projectId) => {
+  try {
+    await api.delete(`/projects/${projectId}`);
+    return true;
+  } catch (error) {
+    console.error('Error deleting project:', error);
+    throw error;
+  }
+};
