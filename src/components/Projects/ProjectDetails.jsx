@@ -10,11 +10,16 @@ const ProjectDetails = () => {
 
   useEffect(() => {
     const fetchProject = async () => {
-      const data = await getProject(projectId);
-      setProject(data);
+        try {
+          const data = await getProject(projectId);
+          setProject(data);
+        } catch (err) {
+
+        }
     };
     fetchProject();
   }, [projectId]);
+
 
   if (!project) return <div>Loading...</div>;
 
@@ -39,5 +44,6 @@ const ProjectDetails = () => {
     </Card>
   );
 };
+
 
 export default ProjectDetails;

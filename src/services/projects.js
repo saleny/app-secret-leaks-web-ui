@@ -5,14 +5,29 @@ export const createProject = async (repoUrl) => {
   return response.data;
 };
 
-export const getProjects = async () => {
-  const response = await api.get('/projects/');
-  return response.data;
+export const getProjects = async (isAdmin) => {
+  try {
+    const endpoint = isAdmin ? '/projects/all' : '/projects';
+    const response = await api.get(endpoint);
+    return {
+      data: Array.isArray(response.data)
+        ? response.data
+        : [] // Гарантируем массив
+    };
+  } catch (error) {
+    console.error('Ошибка получения проектов:', error);
+    return { data: [] }; // Возвращаем пустой массив при ошибке
+  }
 };
 
 export const getProject = async (projectId) => {
-  const response = await api.get(`/projects/${projectId}`);
-  return response.data;
+  try {
+    const response = await api.get(`/projects/${projectId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching project:', error);
+    throw error;
+  }
 };
 
 export const getProjectScans = async (projectId) => {

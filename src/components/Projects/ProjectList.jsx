@@ -1,31 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Alert } from 'react-bootstrap';
-import { useAlert } from '../../context/AlertContext'; // Добавьте этот импорт
+import { useAuth } from '../../context/AuthContext';
 import ProjectCard from './ProjectCard';
 import { getProjects } from '../../services/projects';
 import Loader from '../UI/Loader';
 
 const ProjectList = () => {
-  const [projects, setProjects] = useState([]);
+  const { user } = useAuth();
+  const [projects, setProjects] = useState([]); // Всегда инициализируем массивом
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { showAlert } = useAlert(); // Получаем функцию из контекста
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const data = await getProjects();
+        const response = await getProjects(user?.isAdmin);
+        // Гарантируем, что данные - массив
+        const data = response?.data ?? [];
         setProjects(data);
       } catch (err) {
-        setError(err.message);
-        showAlert('Failed to load projects', 'danger'); // Правильное использование
+        setError(err.message || 'Ошибка загрузки проектов');
+        setProjects([]); // Сбрасываем на пустой массив при ошибке
       } finally {
         setLoading(false);
       }
     };
 
     fetchProjects();
-  }, [showAlert]); // Добавляем зависимость
+  }, [user?.isAdmin]);
 
   if (loading) return <Loader />;
 
@@ -33,11 +35,18 @@ const ProjectList = () => {
     <Container className="mt-4">
       {error && <Alert variant="danger">{error}</Alert>}
       <Row className="g-4">
-        {projects.map(project => (
-          <Col key={project.id} xs={12} md={6} lg={4}>
-            <ProjectCard project={project} />
+        {/* Проверяем наличие проектов перед рендерингом */}
+        {projects.length > 0 ? (
+          projects.map(project => (
+            <Col key={project.id} xs={12} md={6} lg={4}>
+              <ProjectCard project={project} />
+            </Col>
+          ))
+        ) : (
+          <Col>
+            <Alert variant="info">Нет доступных проектов</Alert>
           </Col>
-        ))}
+        )}
       </Row>
     </Container>
   );

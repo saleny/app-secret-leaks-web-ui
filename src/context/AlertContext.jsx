@@ -8,6 +8,7 @@ export const AlertProvider = ({ children }) => {
 
   const showAlert = (message, variant = 'primary') => {
     const id = Date.now();
+
     setAlerts(prev => [...prev, { id, message, variant }]);
 
     setTimeout(() => {
